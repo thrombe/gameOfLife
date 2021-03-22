@@ -6,37 +6,37 @@ def drawBoard(cols, rows):
 def printBoard(board):
     newBoard = ''
     for key in board.keys():
-        newBoard += str(board[key])
-        newBoard = newBoard.replace('0', ' ').replace('1', 'X')
+        if board[key] == 0: newBoard += ' '
+        else: newBoard += 'X'
+        #newBoard += str(board[key])
+        #newBoard = newBoard.replace('0', ' ').replace('1', 'X')
     print(newBoard)
 
 # goes around the square and counts how many alive
-def countSurr(board, key, alive):
+def countSurr(board, key, alive, emptyCells):
     aliveCount = - board[key] # cuz we'll later add it again in loop
     keyX, keyY = key.split(';')
     keyX, keyY = int(keyX), int(keyY)
-    cells = []
     for i in range(-1, 2):
         for j in range(-1, 2):
             key = f'{keyX + i};{keyY + j}'
-            if board.get(key, None) == 1:
-                aliveCount += 1
-            elif board.get(key, 'bank') == 0: cells.append(key)
-    return aliveCount, cells
+            val = board.get(key, None)
+            if val == 1: aliveCount += 1
+            elif val == 0 and alive == 'yes': emptyCells.add(key)
+    return aliveCount, emptyCells
 
 # for every item, decide if it would be alive/dead
-def decideStat(board, emptyCells = [], alive = 'yes', boardNew = {}): # alive = 'yes' if going through alive cells, alive = 'no' if going through dead cells
-    if alive == 'no': cells = emptyCells
+def decideStat(board, emptyCells = set(), alive = 'yes', boardNew = {}): # alive = 'yes' if going through alive cells, alive = 'no' if going through dead cells
+    if alive == 'no': cells = emptyCells.copy()
     else: cells, boardNew = board, board.copy()
     for key in cells:
-        if board[key] == 1 or alive == 'no':
-            aliveCount, cell = countSurr(board, key, alive)
-            if alive == 'yes': emptyCells.extend(cell)
+        if alive == 'no' or board[key] == 1:
+            aliveCount, emptyCells = countSurr(board, key, alive, emptyCells)
             if aliveCount > 3 or aliveCount < 2: boardNew[key] = 0
             elif aliveCount == 2: pass
             elif aliveCount == 3: boardNew[key] = 1
-    emptyCells = set(emptyCells)
     if alive == 'yes': boardNew = decideStat(board, emptyCells, 'no', boardNew)
+    #del board, key, cells, emptyCells, aliveCount, alive, 
     return boardNew
 
 
@@ -46,18 +46,32 @@ def randomiser(board): # TEMP
         board[key] = random.randint(0, 2) % 2
     return board
 
+'''
+from os import system, name 
+def clear(): 
+    # for windows 
+    if name == 'nt':  _ = system('cls') 
+    # for mac and linux(here, os.name is 'posix') 
+    else:  _ = system('clear') 
+'''
+
+
 cols = 67
-rows = 65
+rows = 64
 board = randomiser(drawBoard(cols, rows))
 #board = drawBoard(cols, rows)
 #glider = ['3;2', '4;3', '2;4', '3;4', '4;4'] 
 #for key in glider: board[key] = 1
 printBoard(board)
 print('\n')
+import time
 while True:
+    start = time.time()
     board = decideStat(board)
-    printBoard(board)
-    print('\n', '-'*50, '\n')
-    if all( val == 0 for val in board.values()): break
+    #clear()
+    printBoard(decideStat(board))
+    print(str(time.time()-start))
+    #print(dir()) # shows all loaded(named) objects
+    #print('\n', '-'*50, '\n')
     #break
 
