@@ -69,9 +69,6 @@ while True:
     start = time.time()
     board = decideStat(board)
     #clear()
-    printBoard(decideStat(board))
+    printBoard(board)
     print(str(time.time()-start))
     #print(dir()) # shows all loaded(named) objects
-    #print('\n', '-'*50, '\n')
-    #break
-
