@@ -1,16 +1,7 @@
 
-
-def drawBoard(cols, rows):
+# generates empty board
+def genBoard(cols, rows):
     return { f'{h};{k}' : 0 for k in range(rows) for h in range(cols) }
-
-def printBoard(board):
-    newBoard = ''
-    for val in board.values():
-        if val == 0: newBoard += ' '
-        else: newBoard += 'X'
-        #newBoard += str(board[key])
-        #newBoard = newBoard.replace('0', ' ').replace('1', 'X')
-    print(newBoard)
 
 # goes around the square and counts how many alive and keeps track of dead neighbours
 def countSurr(board, key, alive, emptyCells):
@@ -40,11 +31,36 @@ def decideStat(board, emptyCells = set(), alive = 'yes', boardNew = {}): # alive
     return boardNew
 
 
-def randomiser(board): # TEMP # about 30 percent alive cells
+def randomiser(board, rarity): # about 30 percent alive cells
     import random
     for key in board.keys():
-        board[key] = random.randint(0, 2) % 2
+       if random.randint(0, rarity) == 0: board[key] = 1
     return board
+
+def loadStructure(board, structure, rarity = 5): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
+    if type(structure) == type('string'):
+        if structure == 'random': return randomiser(board, rarity)
+        structures = { 'glider' : ['3;2', '4;3', '2;4', '3;4', '4;4'], }
+        structure = structures[structure]
+    for key in structure: board[key] = 1
+    return board
+
+def printBoard(board):
+    newBoard = ''
+    for val in board.values():
+        if val == 0: newBoard += ' '
+        else: newBoard += 'x'
+    print(newBoard)
+
+def printBoard2(board, cols):
+    newBoard = ''
+    num = 0
+    for val in board.values():
+        num += 1
+        if val == 0: newBoard += ' '
+        else: newBoard += 'x'
+        if num % cols == 0: newBoard += '\n'
+    print(newBoard)
 
 ''' # to clear screen (sloooow)
 from os import system, name 
@@ -55,18 +71,18 @@ def clear():
     else:  _ = system('clear') 
 '''
 
-
-cols = 67
-rows = 64
-board = randomiser(drawBoard(cols, rows))
-#board = drawBoard(cols, rows) # creates a glider at about the top left of screen
-#glider = ['3;2', '4;3', '2;4', '3;4', '4;4'] 
-#for key in glider: board[key] = 1
-import time
-while True:
-    start = time.time()
-    #clear()
-    printBoard(board)
-    print(str(time.time()-start))
-    board = decideStat(board)
-    #print(dir()) # shows all loaded(named) objects
+if __name__ == '__main__': # ADJUST SIZE OF cols OR UNCOMMENT PRINTBOARD2 AND COMMENT PRINTBOARD
+    cols = 67 # my screen width in chars ( 67, 64 )
+    rows = 64
+    board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
+    import time
+    while True:
+        start = time.time()
+        #clear()
+        #print("\u001b[H\u001b[2J")
+        printBoard(board) #must use fixed column size (tiny bit faster)
+        #printBoard2(board, cols) # can use custom sizes
+        print(time.time()-start)
+        board = decideStat(board)
+        #print(dir()) # shows all loaded(named) objects
+        #exit()
