@@ -24,7 +24,6 @@ def decideStat(board, emptyCells = set(), alive = 'yes', boardNew = {}): # alive
         if alive == 'no' or board[key] == 1: # loop only if checking either alive ones or their neighbours
             aliveCount, emptyCells = countSurr(board, key, alive, emptyCells)
             if aliveCount > 3 or aliveCount < 2: boardNew[key] = 0 # these 3 are the conditions for the game of life (gotta play with these)
-            elif aliveCount == 2: pass
             elif aliveCount == 3: boardNew[key] = 1 # 1) if more than 3, or less than 2 alive neighbours, then cell dies, 2) if 2 or 3 neighbours, cell lives, 3) if exactly 3 neighbours, cell comes to life
     if alive == 'yes': boardNew = decideStat(board, emptyCells, 'no', boardNew) # checking for neighbours
     #del board, key, cells, emptyCells, aliveCount, alive, # not really required
@@ -75,14 +74,15 @@ if __name__ == '__main__': # ADJUST SIZE OF cols OR UNCOMMENT PRINTBOARD2 AND CO
     cols = 67 # my screen width in chars ( 67, 64 )
     rows = 64
     board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
+    print(board)
     import time
     while True:
         start = time.time()
         #clear()
+        board = decideStat(board)
         #print("\u001b[H\u001b[2J")
         printBoard(board) #must use fixed column size (tiny bit faster)
         #printBoard2(board, cols) # can use custom sizes
         print(time.time()-start)
-        board = decideStat(board)
         #print(dir()) # shows all loaded(named) objects
         #exit()
