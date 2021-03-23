@@ -74,7 +74,7 @@ if __name__ == '__main__': # ADJUST SIZE OF cols OR UNCOMMENT PRINTBOARD2 AND CO
     cols = 67 # my screen width in chars ( 67, 64 )
     rows = 64
     board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
-    print(board)
+    printBoard(board)
     import time
     while True:
         start = time.time()
