@@ -6,6 +6,7 @@ possible optimisations:
     maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
     try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
     i saw something about matrix multiplications but didnt understand it, maybe look into it later
+    use cell objects as keys(idk if possible). cell.up as upper cell and stuff. we percalculate this (just once) to increase fetch time
     
 what i tried:
     switching from 1,0 to bool for cell.alive - didnt notice much difference
