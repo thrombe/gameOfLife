@@ -1,27 +1,4 @@
 
-'''
-possible optimisations:
-    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
-    switching between 2 dicts(global) instead of newBoard = board.copy()
-    maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
-    try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
-    i saw something about matrix multiplications but didnt understand it, maybe look into it later
-    use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
-        also use tuples for coords instead of '2;34' 
-    
-what i tried:
-    switching from 1,0 to bool for cell.alive - didnt notice much difference
-    switching to bool in alive variable - maybe a bit speedy not sure
-    
-what features to add:
-    a consistant board for benchmark instead of randomised
-    more patterns in loadStructure()
-    a better way to display cells:
-        less flickery text solution
-        a visual library solution
-    
-
-'''
 
 # generates empty board
 def genBoard(cols, rows):

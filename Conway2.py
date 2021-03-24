@@ -1,34 +1,4 @@
 
-'''
-possible optimisations:
-    #  done  #    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
-    #  not needed  #      switching between 2 dicts(global) instead of newBoard = board.copy()
-    #  done   #      maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
-    #  done   #        try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
-    i saw something about matrix multiplications but didnt understand it, maybe look into it later
-    #  not needed  #      use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
-        #  not needed  #      also use tuples for coords instead of '2;34' 
-    
-what i tried:
-    switching from 1,0 to bool for cell.state - didnt notice much difference
-    #  not needed  #     switching to bool in alive variable - maybe a bit speedy not sure
-    
-what features to add:
-    . a consistant board for benchmark instead of randomised
-    . more patterns in loadStructure()
-    #  done  #    offset for structures (so we can place them anywhere)
-    #  done  #   a better way to display cells:
-                           less flickery text solution(curses kinda works)
-    . a visual library solution instead of curses
-    . some kinda interactive play
-    #  done  #   ability to slow dows the tick rate (something like wait(200ms - start):
-                               find a better way for this than time.sleep()
-    
-smol optimisations (maybe will have to try):
-    # done #   when checking dead cells,(countAlive()) do not add cells to set (optimisation) (maybe)
-    #  not needed   #  try converting board to a list(or set. its faster ig). the dictionary part of it isnt really used anywhere
-    
-'''
 
 # creates cell objects
 class Cell:
@@ -77,7 +47,7 @@ def printBoard(board, cols, cellDead, cellAlive):
         if cell.state == 0: newBoard += cellDead
         else: newBoard += cellAlive
         if num % cols == 0: newBoard += '\n'
-    return newBoard
+    print(newBoard)
 
 
 # randomly assigns the state to cells (acc to rarity)
@@ -103,7 +73,7 @@ def loadStructure(board, offX, offY, structure, rarity = 5): # structure is a li
 
 
 if __name__ == '__main__':
-    
+    import time
     cols, rows = 83, 77 # my screen size in chars ( 67, 64 ) (83, 77)
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
@@ -113,22 +83,17 @@ if __name__ == '__main__':
     offX, offY = 3, 3 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
-    import curses # idk why randomly chars keep apearing
-    import time
+    
+    board = genBoard(cols, rows)
+    printBoard(loadStructure(board, offX, offY, structureName, randomness), cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
     start = time.time()
-    def screen(scr: 'curses._CursesWindow'):
-        board = genBoard(cols, rows)
-        scr.insstr(printBoard(loadStructure(board, offX, offY, structureName, randomness), cols, cellDead, cellAlive)) # ('random', rarity), 'gilder', 
-        scr.refresh()
-        for generation in range(worldEnd+1): #for loop is faster
-            tick = time.time()
-            board = decideState(board)
-            #print("\u001b[H\u001b[2J") # makes screen blank but dosent clear() (its a bit too flickery)
-            scr.erase()
-            scr.insstr(1, 0, printBoard(board, cols, cellDead, cellAlive)) # takes about 0.0066 sec
-            scr.insstr(0, 0, str(generation) + ' ' + str(time.time()-tick))
-            delay = time.time() - tick
-            if tickDelay - delay > delay: time.sleep(tickDelay - delay)
-            scr.refresh()
-    curses.wrapper(screen)
+    for generation in range(worldEnd+1): #for loop is faster
+        tick = time.time()
+        board = decideState(board)
+        #print("\u001b[H\u001b[2J") # makes screen blank but dosent clear() (its a bit too flickery)
+        delay = time.time() - tick
+        if tickDelay - delay > delay: time.sleep(tickDelay - delay)
+        printBoard(board, cols, cellDead, cellAlive) # takes about 0.0066 sec
+        print(generation, time.time()-tick)
+        #print(dir()) # shows all loaded(named) objects
     print(time.time()-start)
