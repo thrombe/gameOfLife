@@ -1,27 +1,4 @@
 
-'''
-possible optimisations:
-    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
-    switching between 2 dicts(global) instead of newBoard = board.copy()
-    maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
-    try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
-    i saw something about matrix multiplications but didnt understand it, maybe look into it later
-    use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
-        also use tuples for coords instead of '2;34' 
-    
-what i tried:
-    switching from 1,0 to bool for cell.alive - didnt notice much difference
-    switching to bool in alive variable - maybe a bit speedy not sure
-    
-what features to add:
-    a consistant board for benchmark instead of randomised
-    more patterns in loadStructure()
-    a better way to display cells:
-        less flickery text solution
-        a visual library solution
-    
-
-'''
 
 # generates empty board
 def genBoard(cols, rows):
@@ -73,7 +50,7 @@ def printBoard(board):
     for val in board.values():
         if val == 0: newBoard += ' '
         else: newBoard += 'x'
-    print(newBoard)
+    return newBoard
 
 def printBoard2(board, cols):
     newBoard = ''
@@ -83,31 +60,28 @@ def printBoard2(board, cols):
         if val == 0: newBoard += ' '
         else: newBoard += 'x'
         if num % cols == 0: newBoard += '\n'
-    print(newBoard)
+    return newBoard
 
-''' # to clear screen (sloooow)
-from os import system, name 
-def clear(): 
-    # for windows 
-    if name == 'nt':  _ = system('cls') 
-    # for mac and linux(here, os.name is 'posix') 
-    else:  _ = system('clear') 
-'''
 
-if __name__ == '__main__': # ADJUST SIZE OF cols OR UNCOMMENT PRINTBOARD2 AND COMMENT PRINTBOARD FOR CUSTOM BOARD SIZE
-    import time
+import curses # idk why randomly chars keep apearing
+import time
+start = time.time()
+def curse(scr: 'curses._CursesWindow'):
     cols, rows = 83, 77 # my screen width in chars ( 67, 64 ) (83, 77)
     board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
-    printBoard(board)
-    start = time.time()
+    scr.insstr(printBoard2(board, cols))
+    scr.refresh()
     worldEnd = 200 # loop for this many generations
     for generation in range(worldEnd+1): #for loop is faster
         tick = time.time()
-        #clear()
         board = decideStat(board)
-        #print("\u001b[H\u001b[2J") # makes screen blank but dosent clear() (its a bit too flickery)
-        #printBoard(board) #must use fixed column size (tiny bit faster)
-        printBoard2(board, cols) # can use custom sizes
-        print(generation, time.time()-tick)
-        #print(dir()) # shows all loaded(named) objects
-    print(time.time()-start)
+        #scr.insstr(printBoard(board)) #must use fixed column size (tiny bit faster)
+        #scr.clear()
+        #scr.insstr(' '*1000)
+        scr.erase()
+        scr.insstr(1, 0, printBoard2(board, cols)) # can use custom sizes
+        scr.insstr(0, 0, str(generation) + ' ' + str(time.time()-tick))
+        scr.refresh()
+
+curses.wrapper(curse)
+print(str(time.time()-start))

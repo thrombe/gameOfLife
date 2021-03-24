@@ -6,7 +6,8 @@ possible optimisations:
     maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
     try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
     i saw something about matrix multiplications but didnt understand it, maybe look into it later
-    use cell objects as keys. cell.up as upper cell and stuff. we percalculate this (just once) to increase fetch time
+    use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
+        also use tuples for coords instead of '2;34' 
     
 what i tried:
     switching from 1,0 to bool for cell.alive - didnt notice much difference
@@ -22,10 +23,49 @@ what features to add:
 
 '''
 
+class Cell:
+    def __init__(self, x, y, alive, next, neighbours = set()):
+        self.x = x
+        self.y = y
+        self.state = alive
+        self.next = next
+        self.neighbours = neighbours
+        
+    def countAlive(self, emptyCells = set()): # when checking dead cells, do not add cells to set (optimisation)
+        #for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]:
+        aliveCount = 0
+        for cell in self.neighbours:
+            if cell.state == 1: aliveCount += 1
+            else: emptyCells.add(cell)
+        return aliveCount
+
 # generates empty board
 def genBoard(cols, rows):
-    return { f'{h};{k}' : 0 for k in range(rows) for h in range(cols) }
+    board = {}
+    assign = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(rows) for h in range(cols) }
+    for cell in assign.values():
+        a, b = cell.x, cell.y
+        for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]:
+            cell.neighbours.add(assign.get(f'{a+x};{b+y}', None))
+        cell.neighbours.discard(None) # discard dosent raise value not present error
+        board[cell] = (a, b)
+        #print(len(cell.neighbours))##
+    #print('ass', len(assign))##
+    return board
 
+def decideState(board, emptyCells = set()):
+    for cell in board.keys():
+        if cell.state == 1:
+            aliveCount = cell.countAlive(emptyCells)
+            if aliveCount > 3 or aliveCount < 2: cell.next = 0 # these 3 are the conditions for the game of life (gotta play with these)
+    for cell in emptyCells:
+        aliveCount = cell.countAlive()
+        if aliveCount == 3: cell.next = 1 # 1) if more than 3, or less than 2 alive neighbours, then cell dies, 2) if 2 or 3 neighbours, cell lives, 3) if exactly 3 neighbours, cell comes to life
+    #printBoard2(board, cols)##
+        #print(len(cell.neighbours))##
+    return board
+
+'''
 # goes around the square and counts how many alive and keeps track of dead neighbours
 def countSurr(board, key, alive, emptyCells):
     aliveCount = - board[key] # cuz we'll later add it again in loop
@@ -51,35 +91,38 @@ def decideStat(board, emptyCells = set(), alive = 'yes', boardNew = {}): # alive
     if alive == 'yes': boardNew = decideStat(board, emptyCells, 'no', boardNew) # checking for neighbours
     #del board, key, cells, emptyCells, aliveCount, alive, # not really required
     return boardNew
-
+'''
 
 def randomiser(board, rarity): # about 30 percent alive cells
     import random
-    for key in board.keys():
-       if random.randint(0, rarity) == 0: board[key] = 1
+    for cell in board.keys():
+       if random.randint(0, rarity) == 0: cell.state, cell.next = 1, 1
     return board
 
 def loadStructure(board, structure, rarity = 5): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
     if type(structure) == type('string'):
         if structure == 'random': return randomiser(board, rarity)
-        structures = { 'glider' : ['3;2', '4;3', '2;4', '3;4', '4;4'], }
+        structures = { 'glider' : ['3;2', '4;3', '2;4', '3;4', '4;4'], } # dosent work rn
         structure = structures[structure]
     for key in structure: board[key] = 1
     return board
 
+'''
 def printBoard(board):
     newBoard = ''
     for val in board.values():
         if val == 0: newBoard += ' '
         else: newBoard += 'x'
     print(newBoard)
+'''
 
 def printBoard2(board, cols):
     newBoard = ''
     num = 0
-    for val in board.values():
+    for cell in board.keys():
+        cell.state = cell.next
         num += 1
-        if val == 0: newBoard += ' '
+        if cell.state == 0: newBoard += ' '
         else: newBoard += 'x'
         if num % cols == 0: newBoard += '\n'
     print(newBoard)
@@ -95,18 +138,24 @@ def clear():
 
 if __name__ == '__main__': # ADJUST SIZE OF cols OR UNCOMMENT PRINTBOARD2 AND COMMENT PRINTBOARD FOR CUSTOM BOARD SIZE
     import time
-    cols, rows = 67, 64 # my screen width in chars ( 67, 64 )
+    cols, rows = 83, 77 # my screen width in chars ( 67, 64 )
     board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
-    printBoard(board)
+    printBoard2(board, cols)
     start = time.time()
     worldEnd = 200 # loop for this many generations
     for generation in range(worldEnd+1): #for loop is faster
         tick = time.time()
         #clear()
-        board = decideStat(board)
+        board = decideState(board)
         #print("\u001b[H\u001b[2J") # makes screen blank but dosent clear() (its a bit too flickery)
         #printBoard(board) #must use fixed column size (tiny bit faster)
         printBoard2(board, cols) # can use custom sizes
         print(generation, time.time()-tick)
         #print(dir()) # shows all loaded(named) objects
     print(time.time()-start)
+
+
+
+#print(genBoard(30, 30))
+#board = loadStructure(genBoard(30, 30), 'random', 5) # ('random', rarity), 'gilder', 
+#printBoard2(board, 30)
