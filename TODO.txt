@@ -13,8 +13,10 @@ what i tried:
     #  not needed  #     switching to bool in alive variable - maybe a bit speedy not sure
     
 what features to add:
+    . loop the board
+    #  done  #     extract structures from images
     . a consistant board for benchmark instead of randomised
-    . more patterns in loadStructure()
+    #  done  #      more patterns in loadStructure()
     #  done  #    offset for structures (so we can place them anywhere)
     #  done  #   a better way to display cells:
                         less flickery text solution(curses kinda works)

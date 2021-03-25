@@ -15,13 +15,13 @@ def printBoard(board, cols, cellDead, cellAlive):
 
 if __name__ == '__main__':
     
-    cols, rows = 83, 77 # my screen size in chars ( 67, 64 ) (83, 77)
+    cols, rows = 83, 79 # my screen size in chars ( 67, 64 ) (83, 79)
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
-    worldEnd = 200 # loop for this many generations
-    structureName = 'random' # name of structure to load ('random', 'glider', )
+    worldEnd = 200000 # loop for this many generations
+    structureName = 2 # index no. or name of structure to load or 'random' index is -1     (you can find structure names and indexes in structures.txt)
     randomness = 5 # if structureName == random
-    offX, offY = 3, 3 # structure offset: origin topleft, (right, down) = +ve (x, y)
+    offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
     import curses # idk why randomly chars keep apearing
