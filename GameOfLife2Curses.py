@@ -1,5 +1,5 @@
 
-from Conway2 import *
+from GameOfLife2 import *
 
 # it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard(board, cols, cellDead, cellAlive):

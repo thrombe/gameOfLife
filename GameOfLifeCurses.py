@@ -1,5 +1,5 @@
 
-from Conway import *
+from GameOfLife import *
 
 def printBoard2(board, cols):
     newBoard = ''
@@ -16,7 +16,7 @@ import curses # idk why randomly chars keep apearing
 import time
 start = time.time()
 def curse(scr: 'curses._CursesWindow'):
-    cols, rows = 83, 77 # my screen width in chars ( 67, 64 ) (83, 77)
+    cols, rows = 83, 79 # my screen width in chars ( 67, 64 ) (83, 79)
     board = loadStructure(genBoard(cols, rows), 'random', 5) # ('random', rarity), 'gilder', 
     scr.insstr(printBoard2(board, cols))
     scr.refresh()
