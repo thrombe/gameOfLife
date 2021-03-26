@@ -8,7 +8,7 @@ outfile = ''
 filein = './structureImages/coolPattern.png'
 widthPix = 46 # GOL width
 heightPix = 46 # GOL height
-def check(pixel): return pixel[0] > 150 # pixel is a tuple of (RGB) values (each from 0 to 255)(there might also be a alpha value as the 4th value in tuple)
+def check(pixel): return pixel[0] > 150 # this is the condition that the live cell follows. like if its white, its (R, G, B) will be (255, 255, 255), according to your image, edit this condition(currently it should be checking for a whitish color. so i can check just check for this R > 150) # pixel is a tuple of (RGB) values (each from 0 to 255)(there might also be a alpha value as the 4th value in tuple)
 # int('hexvalue', 16) #converts hex to decimal
 ################
 
@@ -58,7 +58,7 @@ with open(structure_file, 'r') as i:
     structures = json.load(i)
 print(structure_new)
 
-structures[input('enter structure name: ')] = structure_new
+structures[input('\n enter structure name: ')] = structure_new
 
 with open(structure_file, 'w') as i:
     json.dump(structures, i)
