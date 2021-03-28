@@ -59,7 +59,7 @@ def randomiser(board, rarity):
 
 # allows you to load structures
 def loadStructure(board, offX, offY, structure, rarity = 5): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
-    if structure == 'random' or structure == -1: return randomiser(board, rarity)
+    if structure == 'random' or structure == 0: return randomiser(board, rarity)
     with open('./structures.txt', 'r') as structures:
         import json
         if type(structure) == type('string'):
@@ -81,8 +81,8 @@ if __name__ == '__main__':
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
     worldEnd = 200000 # loop for this many generations
-    structureName = 2 # index no. or name of structure to load or 'random' index is -1      (you can find structure names and indexes in structures.txt)
-    randomness = 5 # if structureName == random
+    structureName = 0 # index no. or name of structure to load or 'random' index is 0      (you can find structure names and indexes in structures.txt)
+    randomness = 5 # if structureName == random or 0
     offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     

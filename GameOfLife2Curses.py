@@ -19,8 +19,8 @@ if __name__ == '__main__':
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
     worldEnd = 200000 # loop for this many generations
-    structureName = 2 # index no. or name of structure to load or 'random' index is -1     (you can find structure names and indexes in structures.txt)
-    randomness = 5 # if structureName == random
+    structureName = 0 # index no. or name of structure to load or 'random' index is 0     (you can find structure names and indexes in structures.txt)
+    randomness = 5 # if structureName == random or 0
     offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
