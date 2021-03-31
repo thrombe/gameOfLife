@@ -2,39 +2,39 @@
 
 # creates cell objects
 class Cell:
-    def __init__(self, x, y, alive, next, neighbours): # assign attributes to every cell to eliminate dictionary lookups and stuff
+    def __init__(self, x, y, alive, next, neighbors): # assign attributes to every cell to eliminate dictionary lookups and stuff
         self.x = x
         self.y = y
         self.state = alive
         self.next = next
-        self.neighbours = neighbours # this is a set of objects (neighbour cells (walls ignored))
+        self.neighbors = neighbors # this is a set of objects (neighbor cells (walls ignored))
         
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
     def countAlive(self, emptyCells = set(), aliveCount = 0):
-        for cell in self.neighbours:
+        for cell in self.neighbors:
             if cell.state == 1: aliveCount += 1
             elif self.state == 1: emptyCells.add(cell) # only add dead cells to a set if the current cell is alive
-        return aliveCount # dont have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
+        return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
-# generates empty board and assigns neighbours to cells in advance so we only do this once
+# generates empty board and assigns neighbors to cells in advance so we only do this once
 def genBoard(cols, rows):
-    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(rows) for h in range(cols) } # create a dict so that we can find the neighbours using coords
+    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(rows) for h in range(cols) } # create a dict so that we can find the neighbors using coords
     for cell in board.values():
         a, b = cell.x, cell.y # fetch values only once per cell and not in the loop
         for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]: # using cached relative coords instead of the loops
-            cell.neighbours.add(board.get(f'{a+x};{b+y}', None)) # returns None if cell is outside the coords ie. a wall
-        cell.neighbours.discard(None) # discard dosent raise value not present error
+            cell.neighbors.add(board.get(f'{a+x};{b+y}', None)) # returns None if cell is outside the coords ie. a wall
+        cell.neighbors.discard(None) # discard doesn't raise value not present error
     return board # passing both so we can use the dict to load structures
 
 # decides the next state of every cell
 def decideState(board, emptyCells = set()):
     for cell in board.values():
-        if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbour the alive ones)
+        if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
             aliveCount = cell.countAlive(emptyCells)
             if aliveCount > 3 or aliveCount < 2: cell.next = 0 # 3 conditions for the game of life (gotta play with these)
     for cell in emptyCells: # loop on dead cells
         aliveCount = cell.countAlive()
-        if aliveCount == 3: cell.next = 1 # 1) if more than 3 or less than 2 alive neighbours, then cell dies, 2) if 2 or 3 neighbours, cell lives, 3) if exactly 3 neighbours, cell comes to life
+        if aliveCount == 3: cell.next = 1 # 1) if more than 3 or less than 2 alive neighbors, then cell dies, 2) if 2 or 3 neighbors, cell lives, 3) if exactly 3 neighbors, cell comes to life
     return board
 
 # it prints board and sets the cell.state attribute to cell.next attribute's value'
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     for generation in range(worldEnd+1): #for loop is faster
         tick = time.time()
         board = decideState(board)
-        #print("\u001b[H\u001b[2J") # makes screen blank but dosent clear() (its a bit too flickery)
+        #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)
         printBoard(board, cols, cellDead, cellAlive) # takes about 0.0066 sec
