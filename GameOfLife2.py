@@ -10,10 +10,10 @@ class Cell:
         self.neighbors = neighbors # this is a set of objects (neighbor cells (walls ignored))
         
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
-    def countAlive(self, emptyCells = set(), aliveCount = 0):
-        for cell in self.neighbors:
-            if cell.state == 1: aliveCount += 1
-            elif self.state == 1: emptyCells.add(cell) # only add dead cells to a set if the current cell is alive
+    def countAlive(self, emptyCells = 0, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
+        for neighbor in self.neighbors:
+            if neighbor.state == 1: aliveCount += 1
+            elif self.state == 1: emptyCells.add(neighbor) # only add dead cells to a set if the current cell is alive
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
@@ -27,7 +27,8 @@ def genBoard(cols, rows):
     return board # passing both so we can use the dict to load structures
 
 # decides the next state of every cell
-def decideState(board, emptyCells = set()):
+def decideState(board):
+    emptyCells = set()
     for cell in board.values():
         if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
             aliveCount = cell.countAlive(emptyCells)
