@@ -15,7 +15,7 @@ def printBoard2(board, cols, cellDead, cellAlive):
 
 if __name__ == '__main__':
     
-    cols, rows = 83, 79 # my screen size in chars ( 67, 64 ) (83, 79)
+    cols, rows = 151, 160 # my screen size in chars ( 67, 64 ) (83, 79)(151, 165)
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
     worldEnd = 200000 # loop for this many generations

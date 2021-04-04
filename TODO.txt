@@ -7,7 +7,9 @@ possible optimisations:
     i saw something about matrix multiplications but didnt understand it, maybe look into it later
     #  not needed  #      use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
         #  not needed  #      also use tuples for coords instead of '2;34' 
-    
+    #  DONE  #    instead of asking empty cells how many neighbors they have, we can increment the value of neighbor.alivecount by 1 when we loop through live cells. and now if the count is 3, we can just make it alive without looking at its neighbors again
+
+
 what i tried:
     switching from 1,0 to bool for cell.state - didnt notice much difference
     #  not needed  #     switching to bool in alive variable - maybe a bit speedy not sure
