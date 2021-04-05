@@ -13,7 +13,7 @@ class Cell:
     def countAlive(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
         for neighbor in self.neighbors:
             if neighbor.state == 1: aliveCount += 1
-            else:
+            else: # is state of neighbor is dead, increment neighbor.alivecount and decide its next
                 neighbor.alivecount += 1
                 alivecount = neighbor.alivecount
                 if alivecount == 3:
@@ -37,9 +37,8 @@ def genBoard(cols, rows):
 
 # decides the next state of every cell
 def decideState(filled):
-    loop = filled.copy()
-    for cell in loop:
-        # if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
+    loop = filled.copy() # we only need to loop through filled ones and not the empty ones
+    for cell in loop: # we add and remove stuff from filled as cells are born and others die
         aliveCount = cell.countAlive(filled)
         if aliveCount > 3 or aliveCount < 2:
             filled.discard(cell)
@@ -50,7 +49,6 @@ def decideState(filled):
 def printBoard(board, cols, cellDead, cellAlive):
     newBoard = ''
     num = 0
-    # for num, cell in enumerate(board):
     for cell in board:
         cell.state = cell.next
         num += 1
@@ -58,7 +56,6 @@ def printBoard(board, cols, cellDead, cellAlive):
             cell.alivecount = 0
             newBoard += cellDead
         else: newBoard += cellAlive
-        # if num+1 % cols == 0: newBoard += '\n'
         if num % cols == 0: newBoard += '\n'
     print(newBoard)
 
@@ -68,9 +65,10 @@ def randomiser(board, rarity):
     newBoard = []
     filled = set()
     for cell in board.values():
-       if random.randint(0, rarity) == 0: cell.state, cell.next = 1, 1
-       filled.add(cell)
-       newBoard.append(cell)
+        if random.randint(0, rarity) == 0:
+            cell.state, cell.next = 1, 1
+            filled.add(cell)
+        newBoard.append(cell)
     return newBoard, filled
 
 # allows you to load structures
