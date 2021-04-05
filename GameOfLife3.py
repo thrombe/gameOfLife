@@ -25,13 +25,20 @@ class Cell:
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
-def genBoard(cols, rows):
-    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(rows) for h in range(cols) } # create a dict so that we can find the neighbors using coords
+def genBoard(cols, rows, torus):
+    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(1, rows+1) for h in range(1, cols+1) } # create a dict so that we can find the neighbors using coords
     for cell in board.values():
         a, b = cell.x, cell.y # fetch values only once per cell and not in the loop
-        for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]: # using cached relative coords instead of the loops
-            cell.neighbors.add(board.get(f'{a+x};{b+y}', None)) # returns None if cell is outside the coords ie. a wall
-        cell.neighbors.discard(None) # discard doesn't raise value not present error
+        for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]: #cell.neighbors.add(board.get(f'{a+x};{b+y}', None))
+            if torus == 1:
+                X, Y = x+a, y+b
+                if X > cols: X = 1
+                elif X == 0: X = cols
+                if Y > rows: Y = 1
+                elif Y == 0: Y = rows
+                cell.neighbors.add(board[f'{X};{Y}'])
+            else: cell.neighbors.add(board.get(f'{x+a};{y+b}', None))
+        if torus != 1: cell.neighbors.discard(None) # discard doesn't raise value not present error
         cell.neighbors = list(cell.neighbors)
     return board # passing both so we can use the dict to load structures
 
@@ -94,16 +101,17 @@ def loadStructure(board, offX, offY, structure, rarity): # structure is a list o
 if __name__ == '__main__':
     import time
     cols, rows = 151, 160 # my screen size in chars ( 67, 64 ) (83, 77)
+    torus = 1 # set this to 1 to loop the board like a torus
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
-    worldEnd = 200 # loop for this many generations
+    worldEnd = 200000 # loop for this many generations
     structureName = 0 # index no. or name of structure to load or 'random' index is 0      (you can find structure names and indexes in structures.txt)
     randomness = 5 # if structureName == random or 0
     offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
     
-    board = genBoard(cols, rows)
+    board = genBoard(cols, rows, torus)
     board, filled = loadStructure(board, offX, offY, structureName, randomness)
     printBoard(board, cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
     start = time.time()

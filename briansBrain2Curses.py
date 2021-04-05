@@ -1,5 +1,5 @@
 
-from briansBrain import *
+from briansBrain2 import *
 
 # it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard2(board, cols, cellDead, cellAlive, cellSick):

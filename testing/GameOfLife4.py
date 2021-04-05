@@ -25,13 +25,20 @@ class Cell:
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
-def genBoard(cols, rows):
-    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(rows) for h in range(cols) } # create a dict so that we can find the neighbors using coords
+def genBoard(cols, rows, torus):
+    board = { f'{h};{k}' : Cell(h, k, 0, 0, set()) for k in range(1, rows+1) for h in range(1, cols+1) } # create a dict so that we can find the neighbors using coords
     for cell in board.values():
         a, b = cell.x, cell.y # fetch values only once per cell and not in the loop
-        for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]: # using cached relative coords instead of the loops
-            cell.neighbors.add(board.get(f'{a+x};{b+y}', None)) # returns None if cell is outside the coords ie. a wall
-        cell.neighbors.discard(None) # discard doesn't raise value not present error
+        for x, y in [(-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1), (-1, 0)]: #cell.neighbors.add(board.get(f'{a+x};{b+y}', None))
+            if torus == 1:
+                X, Y = x+a, y+b
+                if X > cols: X = 1
+                elif X == 0: X = cols
+                if Y > rows: Y = 1
+                elif Y == 0: Y = rows
+                cell.neighbors.add(board[f'{X};{Y}'])
+            else: cell.neighbors.add(board.get(f'{x+a};{y+b}', None))
+        if torus != 1: cell.neighbors.discard(None) # discard doesn't raise value not present error
         cell.neighbors = list(cell.neighbors)
     return board # passing both so we can use the dict to load structures
 
@@ -74,7 +81,7 @@ def randomiser(board, rarity):
     return newBoard, filled
 
 # allows you to load structures
-def loadStructure(board, offX, offY, structure, rarity = 5): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
+def loadStructure(board, offX, offY, structure, rarity): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
     if structure == 'random' or structure == 0: return randomiser(board, rarity)
     with open('./structures.txt', 'r') as structures:
         import json
@@ -82,18 +89,21 @@ def loadStructure(board, offX, offY, structure, rarity = 5): # structure is a li
             structures = json.load(structures)
             structure = structures[structure]
         elif type(structure) == type(0): structure = list(json.load(structures).values())[structure]
+    filled = set()
     for key in structure: # set cell.state to 1 for each coord in structure
         key = key.split(';')
         key = f'{int(key[0]) + offX};{int(key[1]) + offY}' # coord offset
         cell = board[key]
         cell.state, cell.next = 1, 1
-    return [cell for cell in board.values()]
+        filled.add(cell)
+    return [cell for cell in board.values()], filled
 
 
 
 if __name__ == '__main__':
     import time
     cols, rows = 151, 160 # my screen size in chars ( 67, 64 ) (83, 77)
+    torus = 1 # set this to 1 to loop the board like a torus
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
     worldEnd = 200 # loop for this many generations
@@ -103,7 +113,7 @@ if __name__ == '__main__':
     tickDelay = 0. # tries about this much delay
     
     
-    board = genBoard(cols, rows)
+    board = genBoard(cols, rows, torus)
     board, filled = loadStructure(board, offX, offY, structureName, randomness)
     printBoard(board, cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
     start = time.time()
