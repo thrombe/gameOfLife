@@ -1,23 +1,33 @@
 
 # creates cell objects
 class Cell:
-    def __init__(self, x, y, alive, next, neighbors, alivecount = 0): # assign attributes to every cell to eliminate dictionary lookups and stuff
+    def __init__(self, x, y, alive, next, neighbors, alivecount0 = 0, alivecount1 = 0): # assign attributes to every cell to eliminate dictionary lookups and stuff
         self.x = x
         self.y = y
         self.state = alive
         self.next = next
         self.neighbors = neighbors # this is a set of objects (neighbor cells (walls ignored))
-        self.alivecount = alivecount
-        
+        self.alivecount0 = alivecount0
+        self.alivecount1 = alivecount1
+
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
-    def countAlive(self, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
-        for neighbor in self.neighbors:
-            if neighbor.state == 1: aliveCount += 1
-            else:
-                neighbor.alivecount += 1
-                if neighbor.alivecount < 3: pass
-                elif neighbor.alivecount == 3: neighbor.next = 1
-                elif neighbor.alivecount > 3: neighbor.next = 0
+    def countAlive(self, version, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
+        if version == 0:
+            for neighbor in self.neighbors:
+                if neighbor.state == 1: aliveCount += 1
+                else:
+                    neighbor.alivecount += 1
+                    alivecount = neighbor.alivecount
+                    if alivecount == 3: neighbor.next = 1
+                    elif alivecount > 3: neighbor.next = 0
+        elif version == 1:
+            for neighbor in self.neighbors:
+                if neighbor.next == 1: aliveCount += 1
+                else:
+                    neighbor.alivecount += 1
+                    alivecount = neighbor.alivecount
+                    if alivecount == 3: neighbor.state = 1
+                    elif alivecount > 3: neighbor.state = 0
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
@@ -32,25 +42,34 @@ def genBoard(cols, rows):
     return board # passing both so we can use the dict to load structures
 
 # decides the next state of every cell
-def decideState(board):
-    for cell in board:
-        if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
-            aliveCount = cell.countAlive()
-            if aliveCount > 3 or aliveCount < 2: cell.next = 0 # 3 conditions for the game of life (gotta play with these)
-    return board
+def decideState(board, version):
+    if version == 0:
+        for cell in board:
+            if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
+                aliveCount = cell.countAlive(version)
+                if aliveCount > 3 or aliveCount < 2: cell.next = 0 # 3 conditions for the game of life (gotta play with these)
+        version = 1
+    elif version == 1:
+        for cell in board:
+            if cell.next == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
+                aliveCount = cell.countAlive(version)
+                if aliveCount > 3 or aliveCount < 2: cell.state = 0 # 3 conditions for the game of life (gotta play with these)
+        version = 0
+    return ''.join([f'{cell.state}' for cell in board]).replace('0', cellDead).replace('1', cellAlive), version
 
 # it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard(board, cols, cellDead, cellAlive):
-    newBoard = ''
+    #newBoard = ''
     num = 0
     for cell in board:
         cell.alivecount = 0
         cell.state = cell.next
         num += 1
-        if cell.state == 0: newBoard += cellDead
-        else: newBoard += cellAlive
-        if num % cols == 0: newBoard += '\n'
-    print(newBoard)
+        #if cell.state == 0: newBoard += cellDead
+        #else: newBoard += cellAlive
+        #if num % cols == 0: newBoard += '\n'
+    #print(newBoard)
+    print(''.join([f'{cell.state}' for cell in board]).replace('0', cellDead).replace('1', cellAlive))
 
 # randomly assigns the state to cells (acc to rarity)
 def randomiser(board, rarity):
@@ -95,13 +114,14 @@ if __name__ == '__main__':
     board = loadStructure(board, offX, offY, structureName, randomness)
     printBoard(board, cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
     start = time.time()
-    for generation in range(1, worldEnd): #for loop is faster
+    version = 0
+    for generation in range(2, worldEnd+1): #for loop is faster
         tick = time.time()
-        board = decideState(board)
+        newBoard, version = decideState(board, version)
         #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)
-        printBoard(board, cols, cellDead, cellAlive) # takes about 0.0066 sec
+        # printBoard(board, cols, cellDead, cellAlive) # takes about 0.0066 sec
         print(generation, time.time()-tick)
         #print(dir()) # shows all loaded(named) objects
     print(time.time()-start)
