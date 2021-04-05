@@ -30,12 +30,12 @@ if __name__ == '__main__':
     start = time.time()
     def screen(scr: 'curses._CursesWindow'):
         board = genBoard(cols, rows)
-        board = loadStructure(board, offX, offY, structureName, randomness)
+        board, filled = loadStructure(board, offX, offY, structureName, randomness)
         scr.insstr(printBoard2(board, cols, cellDead, cellAlive)) # ('random', rarity), 'gilder', 
         scr.refresh()
         for generation in range(1, worldEnd): #for loop is faster
             tick = time.time()
-            board = decideState(board)
+            filled = decideState(filled)
             #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
             scr.erase()
             scr.insstr(1, 0, printBoard2(board, cols, cellDead, cellAlive)) # takes about 0.0066 sec

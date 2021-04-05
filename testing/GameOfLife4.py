@@ -10,14 +10,18 @@ class Cell:
         self.alivecount = alivecount
         
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
-    def countAlive(self, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
+    def countAlive(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
         for neighbor in self.neighbors:
             if neighbor.state == 1: aliveCount += 1
             else:
                 neighbor.alivecount += 1
                 alivecount = neighbor.alivecount
-                if alivecount == 3: neighbor.next = 1
-                elif alivecount > 3: neighbor.next = 0
+                if alivecount == 3:
+                    filled.add(neighbor)
+                    neighbor.next = 1
+                elif alivecount > 3:
+                    filled.discard(neighbor)
+                    neighbor.next = 0
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
@@ -32,34 +36,42 @@ def genBoard(cols, rows):
     return board # passing both so we can use the dict to load structures
 
 # decides the next state of every cell
-def decideState(board):
-    for cell in board:
-        if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
-            aliveCount = cell.countAlive()
-            if aliveCount > 3 or aliveCount < 2: cell.next = 0 # 3 conditions for the game of life (gotta play with these)
-    return board
+def decideState(filled):
+    loop = filled.copy()
+    for cell in loop:
+        # if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
+        aliveCount = cell.countAlive(filled)
+        if aliveCount > 3 or aliveCount < 2:
+            filled.discard(cell)
+            cell.next = 0 # 3 conditions for the game of life (gotta play with these)
+    return filled
 
 # it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard(board, cols, cellDead, cellAlive):
     newBoard = ''
     num = 0
+    # for num, cell in enumerate(board):
     for cell in board:
-        cell.alivecount = 0
         cell.state = cell.next
         num += 1
-        if cell.state == 0: newBoard += cellDead
+        if cell.state == 0:
+            cell.alivecount = 0
+            newBoard += cellDead
         else: newBoard += cellAlive
+        # if num+1 % cols == 0: newBoard += '\n'
         if num % cols == 0: newBoard += '\n'
     print(newBoard)
 
 # randomly assigns the state to cells (acc to rarity)
 def randomiser(board, rarity):
     import random
-    boardNew = []
+    newBoard = []
+    filled = set()
     for cell in board.values():
        if random.randint(0, rarity) == 0: cell.state, cell.next = 1, 1
-       boardNew.append(cell)
-    return boardNew
+       filled.add(cell)
+       newBoard.append(cell)
+    return newBoard, filled
 
 # allows you to load structures
 def loadStructure(board, offX, offY, structure, rarity = 5): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
@@ -92,12 +104,12 @@ if __name__ == '__main__':
     
     
     board = genBoard(cols, rows)
-    board = loadStructure(board, offX, offY, structureName, randomness)
+    board, filled = loadStructure(board, offX, offY, structureName, randomness)
     printBoard(board, cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
     start = time.time()
     for generation in range(2, worldEnd+1): #for loop is faster
         tick = time.time()
-        board = decideState(board)
+        filled = decideState(filled)
         #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)
