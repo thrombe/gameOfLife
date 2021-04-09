@@ -12,14 +12,13 @@ class Cell:
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
     def countAlive(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
         for neighbor in self.neighbors:
-            if neighbor.state == 1: aliveCount += 1
-            else: # is state of neighbor is dead, increment neighbor.alivecount and decide its next
+            if neighbor.state == 0: # is state of neighbor is dead, increment neighbor.alivecount and decide its next
                 neighbor.alivecount += 1
                 alivecount = neighbor.alivecount
-                if alivecount == 3:
+                if alivecount == 2:
                     filled.add(neighbor)
                     neighbor.next = 1
-                elif alivecount > 3:
+                elif alivecount > 2:
                     filled.discard(neighbor)
                     neighbor.next = 0
         return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
@@ -46,23 +45,24 @@ def genBoard(cols, rows, torus):
 def decideState(filled):
     loop = filled.copy() # we only need to loop through filled ones and not the empty ones
     for cell in loop: # we add and remove stuff from filled as cells are born and others die
-        aliveCount = cell.countAlive(filled)
-        if aliveCount > 3 or aliveCount < 2:
-            filled.discard(cell)
-            cell.next = 0 # 3 conditions for the game of life (gotta play with these)
+        cell.countAlive(filled)
+        filled.discard(cell)
+        cell.next = 2
     return filled
 
 # it prints board and resets some variables
-def printBoard(board, cols, cellDead, cellAlive):
+def printBoard(board, cols, cellDead, cellAlive, cellSick):
     newBoard = ''
     num = 0
     for cell in board:
         cell.alivecount = 0
         cell.state = cell.next
         num += 1
-        if cell.state == 0:
-            newBoard += cellDead
-        else: newBoard += cellAlive
+        if cell.state == 0: newBoard += cellDead
+        elif cell.state == 1: newBoard += cellAlive
+        elif cell.state == 2:
+            cell.next = 0
+            newBoard += cellSick
         if num % cols == 0: newBoard += '\n'
     print(newBoard)
 
@@ -81,7 +81,7 @@ def randomiser(board, rarity):
 # allows you to load structures
 def loadStructure(board, offX, offY, structure, rarity): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
     if structure == 'random' or structure == 0: return randomiser(board, rarity)
-    with open('./structures.txt', 'r') as structures:
+    with open('./structures.txt', 'r') as structures: # all structures are from GOL and not brian's brain
         import json
         if type(structure) == type('string'):
             structures = json.load(structures)
@@ -103,17 +103,18 @@ if __name__ == '__main__':
     cols, rows = 151, 160 # my screen size in chars ( 67, 64 ) (83, 77)
     torus = 1 # set this to 1 to loop the board like a torus
     cellDead = ' ' # choose how dead cells look
-    cellAlive = 'x' # choose how alive cells look
+    cellAlive = 'X' # choose how alive cells look
+    cellSick = 'o' # choose how dying cells look
     worldEnd = 200000 # loop for this many generations
     structureName = 0 # index no. or name of structure to load or 'random' index is 0      (you can find structure names and indexes in structures.txt)
-    randomness = 5 # if structureName == random or 0
+    randomness = 70 # if structureName == random or 0
     offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
     
     board = genBoard(cols, rows, torus)
     board, filled = loadStructure(board, offX, offY, structureName, randomness)
-    printBoard(board, cols, cellDead, cellAlive) # ('random', rarity), 'gilder', 
+    printBoard(board, cols, cellDead, cellAlive, cellSick) # ('random', rarity), 'gilder', 
     start = time.time()
     for generation in range(2, worldEnd+1): #for loop is faster
         tick = time.time()
@@ -121,7 +122,7 @@ if __name__ == '__main__':
         #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)
-        printBoard(board, cols, cellDead, cellAlive) # takes about 0.0066 sec
+        printBoard(board, cols, cellDead, cellAlive, cellSick) # takes about 0.0066 sec
         print(generation, time.time()-tick)
         #print(dir()) # shows all loaded(named) objects
     print(time.time()-start)

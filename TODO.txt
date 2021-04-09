@@ -15,7 +15,7 @@ what i tried:
     #  not needed  #     switching to bool in alive variable - maybe a bit speedy not sure
     
 what features to add:
-    . loop the board
+    # DONE  #    loop the board
     #  done  #     extract structures from images
     . a consistant board for benchmark instead of randomised
     #  done  #      more patterns in loadStructure()

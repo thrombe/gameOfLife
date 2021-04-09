@@ -1,7 +1,7 @@
 
-from GameOfLife3 import *
+from GameOfLife4 import *
 
-# it prints board and resets some variables
+# it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard2(board, cols, cellDead, cellAlive):
     newBoard = ''
     num = 0
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     worldEnd = 200000 # loop for this many generations
     structureName = 0 # index no. or name of structure to load or 'random' index is 0     (you can find structure names and indexes in structures.txt)
     randomness = 5 # if structureName == random or 0
-    offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
+    offX, offY = 55, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
     tickDelay = 0. # tries about this much delay
     
     import curses # idk why randomly chars keep appearing

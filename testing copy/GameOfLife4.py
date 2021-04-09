@@ -13,7 +13,7 @@ class Cell:
     def countAlive(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
         for neighbor in self.neighbors:
             if neighbor.state == 1: aliveCount += 1
-            else: # is state of neighbor is dead, increment neighbor.alivecount and decide its next
+            else:
                 neighbor.alivecount += 1
                 alivecount = neighbor.alivecount
                 if alivecount == 3:
@@ -44,25 +44,28 @@ def genBoard(cols, rows, torus):
 
 # decides the next state of every cell
 def decideState(filled):
-    loop = filled.copy() # we only need to loop through filled ones and not the empty ones
-    for cell in loop: # we add and remove stuff from filled as cells are born and others die
+    loop = filled.copy()
+    for cell in loop:
+        # if cell.state == 1: # if cell is dead, ignore for now. we loop on en later but smartly (loop on the dead cells only if they neighbor the alive ones)
         aliveCount = cell.countAlive(filled)
         if aliveCount > 3 or aliveCount < 2:
             filled.discard(cell)
             cell.next = 0 # 3 conditions for the game of life (gotta play with these)
     return filled
 
-# it prints board and resets some variables
+# it prints board and sets the cell.state attribute to cell.next attribute's value'
 def printBoard(board, cols, cellDead, cellAlive):
     newBoard = ''
     num = 0
+    # for num, cell in enumerate(board):
     for cell in board:
-        cell.alivecount = 0
         cell.state = cell.next
         num += 1
         if cell.state == 0:
+            cell.alivecount = 0
             newBoard += cellDead
         else: newBoard += cellAlive
+        # if num+1 % cols == 0: newBoard += '\n'
         if num % cols == 0: newBoard += '\n'
     print(newBoard)
 
@@ -72,10 +75,9 @@ def randomiser(board, rarity):
     newBoard = []
     filled = set()
     for cell in board.values():
-        if random.randint(0, rarity) == 0:
-            cell.state, cell.next = 1, 1
-            filled.add(cell)
-        newBoard.append(cell)
+       if random.randint(0, rarity) == 0: cell.state, cell.next = 1, 1
+       filled.add(cell)
+       newBoard.append(cell)
     return newBoard, filled
 
 # allows you to load structures
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     torus = 1 # set this to 1 to loop the board like a torus
     cellDead = ' ' # choose how dead cells look
     cellAlive = 'x' # choose how alive cells look
-    worldEnd = 200000 # loop for this many generations
+    worldEnd = 200 # loop for this many generations
     structureName = 0 # index no. or name of structure to load or 'random' index is 0      (you can find structure names and indexes in structures.txt)
     randomness = 5 # if structureName == random or 0
     offX, offY = 15, 15 # structure offset: origin topleft, (right, down) = +ve (x, y)
