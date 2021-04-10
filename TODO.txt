@@ -1,34 +1,35 @@
-'''
+
+'''# - done, * - not needed
 possible optimisations:
-    #  done  #    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
-    #  not needed  #      switching between 2 dicts(global) instead of newBoard = board.copy()
-    #  done   #      maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
-    #  done   #        try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
+#    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
+*    switching between 2 dicts(global) instead of newBoard = board.copy()
+#    maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
+#    try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
     i saw something about matrix multiplications but didnt understand it, maybe look into it later
-    #  not needed  #      use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
-        #  not needed  #      also use tuples for coords instead of '2;34' 
-    #  DONE  #    instead of asking empty cells how many neighbors they have, we can increment the value of neighbor.alivecount by 1 when we loop through live cells. and now if the count is 3, we can just make it alive without looking at its neighbors again
+*    use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
+*        also use tuples for coords instead of '2;34' 
+#    instead of asking empty cells how many neighbors they have, we can increment the value of neighbor.alivecount by 1 when we loop through live cells. and now if the count is 3, we can just make it alive without looking at its neighbors again
 
 
 what i tried:
     switching from 1,0 to bool for cell.state - didnt notice much difference
-    #  not needed  #     switching to bool in alive variable - maybe a bit speedy not sure
+*    switching to bool in alive variable - maybe a bit speedy not sure
     
 what features to add:
-    # DONE  #    loop the board
-    #  done  #     extract structures from images
+#    loop the board
+#    extract structures from images
     . a consistant board for benchmark instead of randomised
-    #  done  #      more patterns in loadStructure()
-    #  done  #    offset for structures (so we can place them anywhere)
-    #  done  #   a better way to display cells:
+#    more patterns in loadStructure()
+#    offset for structures (so we can place them anywhere)
+#    a better way to display cells:
                         less flickery text solution(curses kinda works)
     . a visual library solution instead of curses
     . some kinda interactive play
-    #  done  #   ability to slow dows the tick rate (something like wait(200ms - start):
+#    ability to slow dows the tick rate (something like wait(200ms - start):
                                find a better way for this than time.sleep()
     
 smol optimisations (maybe will have to try):
-    # done #   when checking dead cells,(countAlive()) do not add cells to set (optimisation) (maybe)
-    #  not needed   #  try converting board to a list(or set. its faster ig). the dictionary part of it isnt really used anywhere
+#    when checking dead cells,(cellNext()) do not add cells to set (optimisation) (maybe)
+*    try converting board to a list(or set. its faster ig). the dictionary part of it isnt really used anywhere
     
 '''

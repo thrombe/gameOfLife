@@ -6,23 +6,25 @@ class Cell:
         self.y = y
         self.state = alive
         self.next = next
-        self.neighbors = neighbors # this is a set of objects (neighbor cells (walls ignored))
+        self.neighbors = neighbors # this is a set of objects (neighbor cells)
         self.alivecount = alivecount
         
     # counts the no. of alive cells around the given cell and adds dead cells to a set so that we can loop on it later
-    def countAlive(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
+    def cellNext(self, filled, aliveCount = 0): # emptyCells is set to 0 cuz if its set to set(), then python keeps it pointing to the same set everytime. (sometimes causes problems)(not in this case tho)
         for neighbor in self.neighbors:
             if neighbor.state == 1: aliveCount += 1
             else: # is state of neighbor is dead, increment neighbor.alivecount and decide its next
                 neighbor.alivecount += 1
                 alivecount = neighbor.alivecount
-                if alivecount == 3:
+                if alivecount == 3: #rule1 if dead cell has 3 alive neighbors, it comes alive
                     filled.add(neighbor)
                     neighbor.next = 1
                 elif alivecount > 3:
                     filled.discard(neighbor)
                     neighbor.next = 0
-        return aliveCount # don't have to return emptyCells as the info is stored in the objects themselves (emptyCells is just a pointer)
+        if aliveCount > 3 or aliveCount < 2: #rule2 is alive cell dosent have 2 or 3 neighbors, it dies
+            filled.discard(self)
+            self.next = 0
 
 # generates empty board and assigns neighbors to cells in advance so we only do this once
 def genBoard(cols, rows, torus):
@@ -33,23 +35,20 @@ def genBoard(cols, rows, torus):
             if torus == 1:
                 X, Y = x+a, y+b
                 if X > cols: X = 1
-                elif X == 0: X = cols
+                elif X == 0: X = cols # code responsible for torus behaviour
                 if Y > rows: Y = 1
                 elif Y == 0: Y = rows
                 cell.neighbors.add(board[f'{X};{Y}'])
             else: cell.neighbors.add(board.get(f'{x+a};{y+b}', None))
         if torus != 1: cell.neighbors.discard(None) # discard doesn't raise value not present error
         cell.neighbors = list(cell.neighbors)
-    return board # passing both so we can use the dict to load structures
+    return board
 
 # decides the next state of every cell
-def decideState(filled):
+def boardNext(filled):
     loop = filled.copy() # we only need to loop through filled ones and not the empty ones
     for cell in loop: # we add and remove stuff from filled as cells are born and others die
-        aliveCount = cell.countAlive(filled)
-        if aliveCount > 3 or aliveCount < 2:
-            filled.discard(cell)
-            cell.next = 0 # 3 conditions for the game of life (gotta play with these)
+        cell.cellNext(filled)
     return filled
 
 # it prints board and resets some variables
@@ -117,7 +116,7 @@ if __name__ == '__main__':
     start = time.time()
     for generation in range(2, worldEnd+1): #for loop is faster
         tick = time.time()
-        filled = decideState(filled)
+        filled = boardNext(filled)
         #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)

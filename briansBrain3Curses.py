@@ -40,7 +40,7 @@ if __name__ == '__main__':
         scr.refresh()
         for generation in range(1, worldEnd): #for loop is faster
             tick = time.time()
-            filled = decideState(filled)
+            filled = boardNext(filled)
             #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
             scr.erase()
             scr.insstr(1, 0, printBoard2(board, cols, cellDead, cellAlive, cellSick)) # takes about 0.0066 sec
