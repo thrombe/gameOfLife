@@ -47,7 +47,6 @@ def boardNext(filled):
     loop = filled.copy() # we only need to loop through filled ones and not the empty ones
     for cell in loop: # we add and remove stuff from filled as cells are born and others die
         cell.cellNext(filled)
-    return filled
 
 # it prints board and resets some variables
 def printBoard(board, cols, cellDead, cellAlive, cellSick):
@@ -66,7 +65,7 @@ def printBoard(board, cols, cellDead, cellAlive, cellSick):
             cell.next = 0 # kill dying cells here cuz we dont loop on them later
             newBoard += cellSick
         if num % cols == 0: newBoard += '\n'
-    print(newBoard)
+    return newBoard
 
 # randomly assigns the state to cells (acc to rarity)
 def randomiser(board, rarity):
@@ -116,15 +115,14 @@ if __name__ == '__main__':
     
     board = genBoard(cols, rows, torus)
     board, filled = loadStructure(board, offX, offY, structureName, randomness)
-    printBoard(board, cols, cellDead, cellAlive, cellSick) # ('random', rarity), 'gilder', 
+    print(printBoard(board, cols, cellDead, cellAlive, cellSick)) # ('random', rarity), 'gilder', 
     start = time.time()
     for generation in range(2, worldEnd+1): #for loop is faster
         tick = time.time()
-        filled = boardNext(filled)
+        boardNext(filled)
         #print("\u001b[H\u001b[2J") # makes screen blank but doesn't clear() (its a bit too flickery)
         delay = time.time() - tick
         if tickDelay - delay > delay: time.sleep(tickDelay - delay)
-        printBoard(board, cols, cellDead, cellAlive, cellSick) # takes about 0.0066 sec
+        print(printBoard(board, cols, cellDead, cellAlive, cellSick)) # takes about 0.0066 sec
         print(generation, time.time()-tick)
-        #print(dir()) # shows all loaded(named) objects
     print(time.time()-start)
