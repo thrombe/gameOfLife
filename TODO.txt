@@ -27,6 +27,7 @@ what features to add:
     . some kinda interactive play
 #    ability to slow dows the tick rate (something like wait(200ms - start):
                                find a better way for this than time.sleep()
+    . use █ as a live cell, and black version of that ('\33[30m█\33[0m') as dead cell, (dosent work in curses)
     
 smol optimisations (maybe will have to try):
 #    when checking dead cells,(cellNext()) do not add cells to set (optimisation) (maybe)
