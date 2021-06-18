@@ -1,6 +1,9 @@
 
 mod gol;
+use std::time;
 
 fn main() {
-    gol::gol()
+    let now = time::Instant::now();
+    gol::gol();
+    println!("{:?}", now.elapsed());
 }

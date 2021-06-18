@@ -8,21 +8,26 @@ for each generation:
   . 
 */
 
+use ncurses;
+
 // run game of life
 pub fn gol() {
     const WIDTH: usize = 151;
     const HEIGHT: usize = 160;
+    const LEN: usize = WIDTH*HEIGHT;
     let mut cells = [0 as u8; WIDTH*HEIGHT];
     let mut board = [b' '; (WIDTH+1)*HEIGHT];
     init_board(&mut board, HEIGHT, WIDTH); // sets the b'\n'
     let mut indices = [-1 as i32; WIDTH*HEIGHT];
 
     randomise_cells(&mut cells, &mut indices);
-    print_reset(&mut cells, &mut indices, &mut board);
+    ncurses::initscr();
+    print_reset(&mut cells, &mut indices, &mut board, LEN);
     for _ in 0..200 {
         cells_set(&mut cells, &indices, WIDTH);
-        print_reset(&mut cells, &mut indices, &mut board);
+        print_reset(&mut cells, &mut indices, &mut board, LEN);
     }
+    ncurses::endwin();
 }
 
 // cell++ for every neighbor or alive cells
@@ -42,10 +47,10 @@ fn cells_set(cells: &mut [u8], indices: &[i32], width: usize) {
 
 // sets board and resets cells for next generation
 #[inline(always)]
-fn print_reset(cells: &mut [u8], indices: &mut [i32], board: &mut [u8]) {
+fn print_reset(cells: &mut [u8], indices: &mut [i32], board: &mut [u8], len: usize) {
     let mut i_indices: usize = 0;
     let mut i_board: usize = 0;
-    for i_cells in 0..cells.len() {
+    for i_cells in 0..len {
         // set cell
         match cells[i_cells] & 0b0000_1111 {
             3 => cells[i_cells] = 0b0001_0000,
@@ -64,7 +69,10 @@ fn print_reset(cells: &mut [u8], indices: &mut [i32], board: &mut [u8]) {
     }
     indices[i_indices] = -1; // will crash if every cell is alive but whatever
     
-    println!("{}", std::str::from_utf8(&board).unwrap());
+    // println!("{}", std::str::from_utf8(&board).unwrap());
+    ncurses::erase();
+    ncurses::addstr(std::str::from_utf8(&board).unwrap());
+    ncurses::refresh();
 }
 
 // sets value to board cells
@@ -86,7 +94,7 @@ fn init_board(board: &mut [u8], height: usize, width: usize) {
 // randomise initial stste of board
 fn randomise_cells(cells: &mut [u8], indices: &mut [i32]) {
     // init with 2 neigh count (cuz if 2 neighs alive, then stay same), just so that print_reset works nicely
-    let ant: [usize; 5] = [2, 2+50*1, 50, 1+50*2, 2+50*2];
+    // let ant: [usize; 5] = [2, 2+50*1, 50, 1+50*2, 2+50*2];
     let mut i_indices: usize = 0;
     // for i in ant.iter() {
     for i in 0..cells.len() {
@@ -95,6 +103,5 @@ fn randomise_cells(cells: &mut [u8], indices: &mut [i32]) {
         indices[i_indices] = i as i32;
         i_indices += 1;
     }
-    println!("{:?}", cells[2]);
     indices[i_indices] = -1;
 }
