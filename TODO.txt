@@ -1,36 +1,35 @@
 
-'''# - done, * - not needed
-possible optimisations:
-#    using classes to eliminate the board[key] lookup for state and alive stat and coords and using cell.alive and stuff instead
-*    switching between 2 dicts(global) instead of newBoard = board.copy()
-#    maybe try using list of tuples for the looking around a cell [ (1, 0), (-1, 1), ..... ]
-#    try for a way to shove dead neighbours inside cell.neighbour and loop on it in a second func inside the main (idk how to stop it from revisiting rn)
-    i saw something about matrix multiplications but didnt understand it, maybe look into it later
-*    use cell objects as keys. cell.up as upper cell and stuff. we precalculate this (just once) to increase fetch time
-*        also use tuples for coords instead of '2;34' 
-#    instead of asking empty cells how many neighbors they have, we can increment the value of neighbor.alivecount by 1 when we loop through live cells. and now if the count is 3, we can just make it alive without looking at its neighbors again
+plan:
+  . update the readme.md
+  . 
 
+rustGOL:
+  . proper edge handling for
+    . non-torus
+    . torus
+  . time profiling
+  . structures.txt support
+  . try openCL/openGL on this
+  . 
 
-what i tried:
-    switching from 1,0 to bool for cell.state - didnt notice much difference
-*    switching to bool in alive variable - maybe a bit speedy not sure
-    
-what features to add:
-#    loop the board
-#    extract structures from images
-    . a consistant board for benchmark instead of randomised
-#    more patterns in loadStructure()
-#    offset for structures (so we can place them anywhere)
-#    a better way to display cells:
-                        less flickery text solution(curses kinda works)
-    . a visual library solution instead of curses
+pyGOL:
+  . import path of structures.txt from addStructure script. just to do less code duplication
+  . maybe yeet older implementations
+  . seperate folder for pyGOL
+  . 
+
+maybe:
+  . implement the rust implementation in
+    . python - just to see if its faster than the last
+    . go - to see how fast rust/go is (also multi-thread)
+  . improve the structure import process for more convinience
+  . 
+
+todo features:
+  . a consistant board for benchmark instead of randomised
+  . a better way to display cells:
+    . a graphics library solution instead of curses
     . some kinda interactive play
-#    ability to slow dows the tick rate (something like wait(200ms - start):
-                               find a better way for this than time.sleep()
-    . use █ as a live cell, and black version of that ('\33[30m█\33[0m') as dead cell, (dosent work in curses)
-    
-smol optimisations (maybe will have to try):
-#    when checking dead cells,(cellNext()) do not add cells to set (optimisation) (maybe)
-*    try converting board to a list(or set. its faster ig). the dictionary part of it isnt really used anywhere
-    
-'''
+  . ability to slow dows the tick rate (something like wait(200ms - start):
+  . use █ as a live cell, and black version of that ('\33[30m█\33[0m') as dead cell, (dosent work in curses)
+  . 
