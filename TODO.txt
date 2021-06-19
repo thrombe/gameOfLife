@@ -7,7 +7,7 @@ rustGOL:
   . proper edge handling for
     . non-torus
     . torus
-  . time profiling
+  . time/performance profiling
   . structures.txt support
   . try openCL/openGL on this
   . 

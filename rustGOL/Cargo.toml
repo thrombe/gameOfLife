@@ -8,3 +8,4 @@ edition = "2018"
 
 [dependencies]
 ncurses = "5.101.0"
+# serde_json = "1.0.59"
