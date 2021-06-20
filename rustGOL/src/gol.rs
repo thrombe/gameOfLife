@@ -24,7 +24,7 @@ pub fn gol() {
     init_board(&mut board, HEIGHT, WIDTH); // sets the b'\n'
     let mut indices = [(ISHTOP, ISHTOP); WIDTH*HEIGHT];
 
-    randomise_cells(&mut cells, &mut indices);
+    draw_structure(2, 15, 15, &mut cells, &mut indices);
     ncurses::initscr();
     print_reset(&mut cells, &mut indices, &mut board);
     for _ in 0..200 {
@@ -107,11 +107,8 @@ fn init_board(board: &mut [u8], height: usize, width: usize) {
 }
 
 // randomise initial stste of board
-fn randomise_cells(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
-    // init with 2 neigh count (cuz if 2 neighs alive, then stay same), just so that print_reset works nicely
-    // let ant: [usize; 5] = [2, 2+50*1, 50, 1+50*2, 2+50*2];
+fn draw_line(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
     let mut i_indices: usize = 0;
-    // for i in ant.iter() {
     for j in 0..HEIGHT {
         for i in 0..WIDTH {
             if i != 50 {continue}
@@ -119,6 +116,19 @@ fn randomise_cells(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usi
             indices[i_indices] = (i, j);
             i_indices += 1;
         }
+    }
+    indices[i_indices] = (ISHTOP, 0);
+}
+
+use crate::import_structure;
+fn draw_structure(num:usize, xoff: usize, yoff: usize,  cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
+    if num == 0 {draw_line(cells, indices)}
+
+    let mut i_indices: usize = 0;
+    for (x, y) in import_structure::from_py_structure(num).iter() { // will crash other parts if it goes outside bordrs
+        cells[*y+yoff][*x+xoff] = 0b0001_0010;
+        indices[i_indices] = (*x+xoff, *y+yoff);
+        i_indices += 1;
     }
     indices[i_indices] = (ISHTOP, 0);
 }
