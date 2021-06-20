@@ -1,3 +1,4 @@
+from structurepath import structure_file
 
 # creates cell objects
 class Cell:
@@ -79,7 +80,7 @@ def randomiser(board, rarity):
 # allows you to load structures
 def loadStructure(board, offX, offY, structure, rarity): # structure is a list of coords 'x;y', or one of the pre-defined structure name (string)
     if structure == 'random' or structure == 0: return randomiser(board, rarity)
-    with open('./structures.txt', 'r') as structures:
+    with open(structure_file, 'r') as structures:
         import json
         if type(structure) == type('string'):
             structures = json.load(structures)

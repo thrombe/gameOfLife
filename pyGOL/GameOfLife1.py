@@ -1,5 +1,4 @@
 
-
 # generates empty board
 def genBoard(cols, rows):
     return { f'{h};{k}' : 0 for k in range(rows) for h in range(cols) }
