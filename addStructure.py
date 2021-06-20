@@ -50,7 +50,7 @@ if outfile:
 
 #in_file = './outfile.txt'
 
-structure_file = '/root/0Git/gameOfLife/structures.txt'
+structure_file = './structures.txt'
 #with open(in_file, 'r') as i:
 #    structure_new = json.load(i)
 structure_new = outlist
