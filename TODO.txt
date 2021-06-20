@@ -4,18 +4,11 @@ plan:
   . 
 
 rustGOL:
-  . proper edge handling for
-    . non-torus
-    . torus
   . time/performance profiling
-  . structures.txt support
   . try openCL/openGL on this
   . 
 
 pyGOL:
-  . import path of structures.txt from addStructure script. just to do less code duplication
-  . maybe yeet older implementations
-  . seperate folder for pyGOL
   . 
 
 maybe:
@@ -23,6 +16,7 @@ maybe:
     . python - just to see if its faster than the last
     . go - to see how fast rust/go is (also multi-thread)
   . improve the structure import process for more convinience
+    . ? what does this mean
   . 
 
 todo features:
