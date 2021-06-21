@@ -10,11 +10,9 @@ for each generation:
 
 use ncurses;
 
-const WIDTH: usize = 151;
-const HEIGHT: usize = 160;
-const TORUS: bool = true;
+use super::{WIDTH, HEIGHT, TORUS, NCURSED, LOOPS};
 
-const ISHTOP: usize = !1 + 1; // -1
+pub const ISHTOP: usize = !1 + 1; // -1
 
 // run game of life
 pub fn gol() {
@@ -24,14 +22,16 @@ pub fn gol() {
     let mut indices = [(ISHTOP, ISHTOP); WIDTH*HEIGHT];
 
     draw_structure(2, 15, 15, &mut cells, &mut indices);
-    ncurses::initscr();
-    ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    if NCURSED {
+        ncurses::initscr();
+        ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    }
     print_reset(&mut cells, &mut indices, &mut board);
-    for _ in 0..200 {
+    for _ in 0..LOOPS {
         cells_set(&mut cells, &indices);
         print_reset(&mut cells, &mut indices, &mut board);
     }
-    ncurses::endwin();
+    if NCURSED {ncurses::endwin();}
 }
 
 // ishtop is equivalent to -1 when added with another no (with wrapping)
@@ -39,7 +39,7 @@ const AROUND: [(usize, usize); 8] = [(ISHTOP, ISHTOP), (0, ISHTOP), (1, ISHTOP),
 
 // cell++ for every neighbor or alive cells
 #[inline(always)]
-fn cells_set(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &[(usize, usize)]) {
+pub fn cells_set(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &[(usize, usize)]) {
     for &i in indices.iter() {
         if i.0 == ISHTOP {break} // end of live cells
         for (ai, aj) in AROUND.iter() { // go around i and do ++ (torus)
@@ -85,21 +85,24 @@ fn print_reset(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]
     }
     indices[i_indices] = (ISHTOP, 0); // will crash if every cell is alive but whatever
     
-    // println!("{}", std::str::from_utf8(&board).unwrap());
-    ncurses::erase(); // seems like this is the slowest part of the code
-    ncurses::addstr(std::str::from_utf8(&board).unwrap());
-    ncurses::refresh();
+    if NCURSED {
+        ncurses::erase(); // seems like this is the slowest part of the code
+        ncurses::addstr(std::str::from_utf8(&board).unwrap());
+        ncurses::refresh();
+    } else {
+        println!("{}", std::str::from_utf8(&board).unwrap());
+    }
 }
 
 // sets value to board cells
 #[inline(always)]
-fn board_set(i: &mut usize, board: &mut [u8], val: u8) {
+pub fn board_set(i: &mut usize, board: &mut [u8], val: u8) {
     if board[*i] == b'\n' {*i += 1}
     board[*i] = val;
 }
 
 // sets b'\n' at correct places
-fn init_board(board: &mut [u8]) {
+pub fn init_board(board: &mut [u8]) {
     let mut offset = 0;
     for i in 1..=HEIGHT {
         board[i*WIDTH + offset] = b'\n';
@@ -122,7 +125,7 @@ fn draw_line(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) 
 }
 
 use crate::import_structure;
-fn draw_structure(num:usize, xoff: usize, yoff: usize,  cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
+pub fn draw_structure(num:usize, xoff: usize, yoff: usize,  cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
     if num == 0 {draw_line(cells, indices)}
 
     let mut i_indices: usize = 0;
