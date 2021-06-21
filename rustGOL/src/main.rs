@@ -13,9 +13,20 @@ pub const TORUS: bool = true;
 pub const NCURSED: bool = true;
 pub const LOOPS: usize = 200;
 
+use std::env;
+
 fn main() {
     let now = time::Instant::now();
-    gol::gol();
-    // bbrain::bbrain();
+
+    // check and do stuff with command line arguments
+    let args: Vec<String> = env::args().collect();
+    if args.len() > 1 {
+        match &args[1][..] {
+            "gol" => gol::gol(args),
+            "bbrain" => bbrain::bbrain(args),
+            _ => println!("[what to run(gol, bbrain), how many loops, what structure to import(name/num), xoffset, yoffset]"),
+        }
+    } else {gol::gol(args)}
+
     println!("{:?}", now.elapsed());
 }

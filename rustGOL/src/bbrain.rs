@@ -9,18 +9,21 @@ use ncurses;
 use crate::gol::{init_board, draw_structure, cells_set, board_set, ISHTOP, WIDTH, HEIGHT, NCURSED, LOOPS};
 
 // run brian's brain
-pub fn bbrain() {
+pub fn bbrain(args: Vec<String>) {
+    let mut loops = LOOPS; // check and set loops if passed in as argument
+    if args.len() > 2 {loops = args[2].parse().unwrap()}
+
     let mut cells = [[0u8; WIDTH]; HEIGHT];
     let mut board = [b' '; (WIDTH+1)*HEIGHT];
     init_board(&mut board); // sets the b'\n'
     let mut indices = [(ISHTOP, ISHTOP); WIDTH*HEIGHT];
 
-    draw_structure(5, 15, 15, &mut cells, &mut indices);
+    draw_structure(args, 5, 15, 15, &mut cells, &mut indices);
     if NCURSED {
         ncurses::initscr();
         ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
     }
-    for _ in 0..LOOPS {
+    for _ in 0..loops {
         cells_set(&mut cells, &indices);
         print_reset(&mut cells, &mut indices, &mut board);
     }
@@ -36,7 +39,7 @@ fn print_reset(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]
         for i_cells_x in 0..WIDTH {
             match cells[i_cells_y][i_cells_x] { // set cell
                 // checking alivecount
-                2 => { // if count == 2 and state is dead, come alive
+                0b0000_0010 => { // if count == 2 and state is dead, come alive
                     cells[i_cells_y][i_cells_x] = 0b0001_0000;
                     indices[i_indices] = (i_cells_x, i_cells_y);
                     i_indices += 1;

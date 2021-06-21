@@ -15,19 +15,22 @@ pub use super::{WIDTH, HEIGHT, TORUS, NCURSED, LOOPS};
 pub const ISHTOP: usize = !1 + 1; // -1
 
 // run game of life
-pub fn gol() {
+pub fn gol(args: Vec<String>) {
+    let mut loops = LOOPS; // check and set loops if passed in as argument
+    if args.len() > 2 {loops = args[2].parse().unwrap()}
+
     let mut cells = [[0u8; WIDTH]; HEIGHT];
     let mut board = [b' '; (WIDTH+1)*HEIGHT];
     init_board(&mut board); // sets the b'\n'
     let mut indices = [(ISHTOP, ISHTOP); WIDTH*HEIGHT];
 
-    draw_structure(2, 15, 15, &mut cells, &mut indices);
+    draw_structure(args, 2, 15, 15, &mut cells, &mut indices);
     if NCURSED {
         ncurses::initscr();
         ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
     }
     print_reset(&mut cells, &mut indices, &mut board);
-    for _ in 0..LOOPS {
+    for _ in 0..loops {
         cells_set(&mut cells, &indices);
         print_reset(&mut cells, &mut indices, &mut board);
     }
@@ -69,7 +72,7 @@ fn print_reset(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]
         for i_cells_x in 0..WIDTH {
             match cells[i_cells_y][i_cells_x] { // set cell
                 // checking alivecount
-                3 | 18 | 19 => { // come alive if 3 (stay alive if 2 or 3)
+                0b0000_0011 | 0b0001_0010 | 0b0001_0011 => { // come alive if 3 (stay alive if 2 or 3)
                     cells[i_cells_y][i_cells_x] = 0b0001_0000;
                     indices[i_indices] = (i_cells_x, i_cells_y);
                     i_indices += 1;
@@ -110,26 +113,13 @@ pub fn init_board(board: &mut [u8]) {
     }
 }
 
-// randomise initial stste of board
-fn draw_line(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
-    let mut i_indices: usize = 0;
-    for j in 0..HEIGHT {
-        for i in 0..WIDTH {
-            if i != 50 {continue}
-            cells[j][i] = 0b0001_0010;
-            indices[i_indices] = (i, j);
-            i_indices += 1;
-        }
-    }
-    indices[i_indices] = (ISHTOP, 0);
-}
-
 use crate::import_structure;
-pub fn draw_structure(num:usize, xoff: usize, yoff: usize,  cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
-    if num == 0 {draw_line(cells, indices)}
+pub fn draw_structure(args: Vec<String>, num: usize, mut xoff: usize, mut yoff: usize,  cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]) {
+    if args.len() > 4 {xoff = args[4].parse().unwrap()} // check and set offsets if passed in as arguments
+    if args.len() > 5 {yoff = args[5].parse().unwrap()}
 
     let mut i_indices: usize = 0;
-    for (x, y) in import_structure::from_py_structure(num).iter() { // will crash other parts if it goes outside bordrs
+    for (x, y) in import_structure::from_py_structure(args, num).iter() { // will crash other parts if it goes outside bordrs
         cells[*y+yoff][*x+xoff] = 0b0001_0010;
         indices[i_indices] = (*x+xoff, *y+yoff);
         i_indices += 1;
