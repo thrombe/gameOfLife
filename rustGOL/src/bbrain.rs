@@ -6,8 +6,7 @@
 
 use ncurses;
 
-use crate::gol::{init_board, draw_structure, cells_set, board_set, ISHTOP};
-use super::{WIDTH, HEIGHT, NCURSED, LOOPS};
+use crate::gol::{init_board, draw_structure, cells_set, board_set, ISHTOP, WIDTH, HEIGHT, NCURSED, LOOPS};
 
 // run brian's brain
 pub fn bbrain() {

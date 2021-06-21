@@ -10,7 +10,7 @@ for each generation:
 
 use ncurses;
 
-use super::{WIDTH, HEIGHT, TORUS, NCURSED, LOOPS};
+pub use super::{WIDTH, HEIGHT, TORUS, NCURSED, LOOPS};
 
 pub const ISHTOP: usize = !1 + 1; // -1
 
