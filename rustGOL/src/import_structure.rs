@@ -4,6 +4,7 @@ use serde_json::{from_str};
 use std::fs::read_to_string;
 
 // imports from file but does so with sorting. so its alphabetic order
+#[allow(unused_assignments)]
 pub fn from_py_structure(num: usize) -> Vec<(usize, usize)> {
     let path = "../structures.txt";
     let file_data: serde_json::Value = from_str(&read_to_string(path).unwrap()).unwrap();

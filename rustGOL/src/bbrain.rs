@@ -1,11 +1,7 @@
 /*
-byte = 0000_0000 -> right 4 save neigh count, 5th stores cell state
-for each generation:
-  . read the 4 bits, set cell state, set cell in board, 
-    reset cell (set state and AND with 0b0001_0000)
-  . save live indices and then -1 to stop
-    . try eliminating this and directly use the cells for this. ie, if dead, continue
-  . 
+0b0001_0000 is alive
+0b0011_0000 is dying
+0b0000_0000 is dead
 */
 
 use ncurses;
@@ -13,25 +9,28 @@ use ncurses;
 const WIDTH: usize = 151;
 const HEIGHT: usize = 160;
 const TORUS: bool = true;
+const NCURSED: bool = true;
+const LOOPS: usize = 200;
 
 const ISHTOP: usize = !1 + 1; // -1
 
-// run game of life
-pub fn gol() {
+// run brian's brain
+pub fn bbrain() {
     let mut cells = [[0u8; WIDTH]; HEIGHT];
     let mut board = [b' '; (WIDTH+1)*HEIGHT];
     init_board(&mut board); // sets the b'\n'
     let mut indices = [(ISHTOP, ISHTOP); WIDTH*HEIGHT];
 
-    draw_structure(2, 15, 15, &mut cells, &mut indices);
-    ncurses::initscr();
-    ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
-    print_reset(&mut cells, &mut indices, &mut board);
-    for _ in 0..200 {
+    draw_structure(5, 15, 15, &mut cells, &mut indices);
+    if NCURSED {
+        ncurses::initscr();
+        ncurses::curs_set(ncurses::CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    }
+    for _ in 0..LOOPS {
         cells_set(&mut cells, &indices);
         print_reset(&mut cells, &mut indices, &mut board);
     }
-    ncurses::endwin();
+    if NCURSED {ncurses::endwin();}
 }
 
 // ishtop is equivalent to -1 when added with another no (with wrapping)
@@ -69,26 +68,34 @@ fn print_reset(cells: &mut [[u8; WIDTH]; HEIGHT], indices: &mut [(usize, usize)]
         for i_cells_x in 0..WIDTH {
             match cells[i_cells_y][i_cells_x] { // set cell
                 // checking alivecount
-                3 | 18 | 19 => { // come alive if 3 (stay alive if 2 or 3)
+                2 => { // if count == 2 and state is dead, come alive
                     cells[i_cells_y][i_cells_x] = 0b0001_0000;
                     indices[i_indices] = (i_cells_x, i_cells_y);
                     i_indices += 1;
                     board_set(&mut i_board, board, b'x');
                 }
+                0b0001_0000..=0b0001_1111 => { // go dying if alive
+                    cells[i_cells_y][i_cells_x] = 0b0011_0000;
+                    board_set(&mut i_board, board, b'o');
+                }
                 _ => { // else dead
                     cells[i_cells_y][i_cells_x] = 0b0000_0000;
-                    board_set(&mut i_board, board, b' ');
+                    board_set(&mut i_board, board, b' ')
                 }
             }
+            
             i_board += 1;
         }
     }
     indices[i_indices] = (ISHTOP, 0); // will crash if every cell is alive but whatever
     
-    // println!("{}", std::str::from_utf8(&board).unwrap());
-    ncurses::erase(); // seems like this is the slowest part of the code
-    ncurses::addstr(std::str::from_utf8(&board).unwrap());
-    ncurses::refresh();
+    if NCURSED {
+        ncurses::erase(); // seems like this is the slowest part of the code
+        ncurses::addstr(std::str::from_utf8(&board).unwrap());
+        ncurses::refresh();
+    } else {
+        println!("{}", std::str::from_utf8(&board).unwrap());        
+    }
 }
 
 // sets value to board cells
