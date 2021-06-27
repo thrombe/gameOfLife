@@ -5,6 +5,7 @@ plan:
 
 rustGOL:
   . time/performance profiling
+    . doing this on android is causing trouble (termux sym-links)
   . try openCL/openGL on this
   . 
 
@@ -15,8 +16,6 @@ maybe:
   . implement the rust implementation in
     . python - just to see if its faster than the last
     . go - to see how fast rust/go is (also multi-thread)
-  . improve the structure import process for more convinience
-    . ? what does this mean
   . 
 
 todo features:
