@@ -4,9 +4,18 @@ plan:
   . 
 
 rustGOL:
+  . directly storing b'x' and stuff in board and using the 2 buffer method might be faster
+    than the current method (only if no. of alive cells is high)
+    . go through 1 buffer completely, while updating the other buffer and then directly print and swap buffers
+    . current one needs 1 board with u8 and another for string representation of board
+      and another for storing x and y indices 2*usize (high memory usage)
+    . this one only needs 2 u8 arrays for storing string representation of board
+  . try using the unsafe get_unchecked_mut pointer or something (for array/vec)
+    . check how much performance difference (i saw it in multiple implementations)
   . time/performance profiling
     . doing this on android is causing trouble (termux sym-links)
   . try openCL/openGL on this
+  . vectors are fast too + they dont do segmentation crashes unless the vec is very big
   . 
 
 pyGOL:
